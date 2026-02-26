@@ -1,0 +1,136 @@
+Part A : Cora is a citation network:
+
+2708 nodes — each node is a scientific paper
+5429 edges — citations between papers
+1433 node features — bag-of-words representation of paper content
+7 classes — the research topic/category of each paper
+Task: Semi-supervised node classification (only 140 labeled nodes for training)
+
+Part B : Recall Steps in standard transformer model :
+
+1. Embedding
+2. Attention over all embeddings(Self-attention) over multiple heads
+3. MLP
+4. Unembedding
+
+Part C :
+
+1. LapPE (Laplacian Positional Encoding)
+2. InputProjection    — linear map from node_features → d_model
+3. GraphAttention     — neighbor-masked multi-head attention
+4. TransformerLayer   — Attention + FFN + LayerNorm + Residual
+5. GraphTransformer   — stack of layers + classifier head
+6. Training Loop      — on Cora with Adam optimizer
+
+Part D :
+
+Architecture :
+
+Input Node Features [N x 1433]
+         │
+         ▼
+  Linear Projection (Embedding)
+  [N x d_model]
+         │
+         ▼
+┌─────────────────────────────┐
+│    Graph Transformer Layer  │  (×L layers)
+│                             │
+│  ┌───────────────────────┐  │
+│  │  Multi-Head Attention │  │
+│  │  (Approach 1 :           |
+|   buidling global attention)|
+| (Approach 2 : implementing  |
+|   over neighbors only)      |
+| (Approach 3 : global        |
+|   attention with sparcity)  |         
+│  └───────────────────────┘  │
+│            │                │
+│       Add & Norm            │
+│            │                │
+│  ┌───────────────────────┐  │
+│  │    Feed Forward (MLP) │  │
+│  └───────────────────────┘  │
+│            │                │
+│       Add & Norm            │
+└─────────────────────────────┘
+         │
+         ▼
+  Linear Classifier Head
+  [N x 7]
+         │
+         ▼
+     Softmax → Class Prediction
+
+Part E:
+
+The Core: Graph Multi-Head Attention
+This is the heart of the model. For each node i, attention is computed only over its neighbors j ∈ N(i):
+Step-by-step:
+
+1. Project node features into Q, K, V
+Q = X · W_Q     # What am I looking for?
+K = X · W_K     # What do I offer?
+V = X · W_V     # What value do I carry?
+
+2. Compute attention scores (neighbor-masked)
+e_ij = (Q_i · K_j^T) / √(d_k)    # only for j ∈ neighbors of i(Depending on the approach)
+
+3. Normalize with softmax over neighbors
+α_ij = softmax over j∈N(i) of e_ij
+
+4. Aggregate neighbor values
+h_i = Σ α_ij · V_j
+
+5. Multi-head: run H parallel attention heads, then concat + project
+h_i = Concat(head_1, ..., head_H) · W_O
+
+Part F:
+
+How is it different from vallina Transformers?
+
+Feature             | Vanilla Transformer    | Graph Transformer
+
+Attention scope     | All tokens (global)    | Only neighbors (local)
+Positional encoding | Sequential positions   | Graph structure (e.g., Laplacian PE)
+Input               | Sequence               | Graph(nodes + edges)
+Masking             | Causal or padding mask | Adjacency-based mask
+
+Part G:
+
+Positional Encoding on Graphs:
+Since graphs have no natural sequence order, we use Laplacian Eigenvector Positional Encoding (LapPE):
+
+Compute the normalized graph Laplacian: L = I - D^(-1/2) A D^(-1/2)
+Take the k smallest non-trivial eigenvectors
+Append them to node features as positional signals
+
+This gives nodes a sense of their position/role in the graph topology.
+
+Part H:
+
+Cora Graph
+  ├── Node features X: [2708, 1433]
+  ├── Adjacency A: [2708, 2708] (sparse)
+  └── Labels Y: [2708]
+
+X → [2708, d_model]          # input projection
+  + LapPE → [2708, d_model]  # add positional encoding
+
+For each GT layer:
+  Neighbor-masked MHA → residual → LayerNorm
+  FFN → residual → LayerNorm
+
+Final [2708, d_model] → Linear → [2708, 7] → log_softmax
+
+Part I:
+
+Key Hyper-parameters : 
+
+1. d_model : 64 or 128
+2. num_heads : 4 or 8
+3. num_layers : 4 
+4. dropout : 0.6
+5. lr : 0.005
+6. epochs : 200
+7. k(LapPE dims) : 8

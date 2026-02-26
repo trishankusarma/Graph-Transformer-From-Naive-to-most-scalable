@@ -1,0 +1,14 @@
+graph_transformer/
+│
+├── data/
+│   └── cora/                    # raw cora files will download here
+│
+├── dataset.py                   # load cora, build SPD matrix, LapPE
+├── model/
+│   ├── __init__.py
+│   ├── attention.py             # multi-head global attention + SPD bias
+│   ├── transformer_layer.py     # single GT layer (attn + FFN + LN + residual)
+│   └── graph_transformer.py     # full model (embedding + stack of layers + classifier)
+│
+├── train.py                     # training + evaluation loop
+└── config.py                    # all hyperparameters in one place
