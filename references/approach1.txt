@@ -2,16 +2,21 @@ graph_transformer/
 │
 ├── data/
 │   └── cora/                    # raw cora files will download here
-│
-├── dataset.py                   # load cora, build SPD matrix, LapPE
-├── model/
-│   ├── __init__.py
-│   ├── attention.py             # multi-head global attention + SPD bias
-│   ├── transformer_layer.py     # single GT layer (attn + FFN + LN + residual)
-│   └── graph_transformer.py     # full model (embedding + stack of layers + classifier)
-│
-├── train.py                     # training + evaluation loop
-└── config.py                    # all hyperparameters in one place
+├── models/                      # Storing the models after each checkpoint and the final model
+├──src/
+|     |-- __init__.py
+|     |-- config.py                    # all hyperparameters in one place
+|     |model/
+│     |  ├── __init__.py
+│     |  ├── attention.py             # multi-head global attention + SPD bias
+│     |  ├── transformer_layer.py     # single GT layer (attn + FFN + LN + residual)
+│     |  └── graph_transformer.py     # full model (embedding + stack of layers + classifier)
+│     |    
+|     |-- dataset.py                   # load cora, build SPD matrix, LapPE
+|     |-- train.py                     # training + evaluation loop
+|     |-- eval.py                      # load the final model and evaluate the performance
+|
+├── run_model.sh                       # Automated scripting for running the model and evaluating 
 
 Overall architecture that we will be following :
 
