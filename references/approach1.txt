@@ -12,3 +12,39 @@ graph_transformer/
 │
 ├── train.py                     # training + evaluation loop
 └── config.py                    # all hyperparameters in one place
+
+Overall architecture that we will be following :
+
+[N, 1433 + k_lap_pe]          # concat features and LapPE
+       │
+  Linear Projection
+       │
+[N, d_model=64]
+       │
+       ▼
+┌─────────────────────────────────┐
+│      GraphTransformerLayer      │  × 4
+│                                 │
+│  x_norm = LayerNorm(x)          │  ← Pre-LN (normalize BEFORE attention)
+│       │                         │
+│  MultiHeadAttention             │
+│  (global, 4 heads, + SPD bias)  │
+│       │                         │
+│  Dropout(0.6)                   │
+│       │                         │
+│  x = x + attention_out          │  ← residual 1
+│  ─────────────────────          │
+│  x_norm = LayerNorm(x)          │  ← Pre-LN again before FFN
+│       │                         │
+│  FFN: Linear→GELU→Drop→Linear   │
+│       │                         │
+│  Dropout(0.6)                   │
+│       │                         │
+│  x = x + ffn_out                │  ← residual 2
+└─────────────────────────────────┘
+       │
+  Linear(d_model → 7)
+       │
+  log_softmax
+       │
+[N, 7]  → node class predictions
