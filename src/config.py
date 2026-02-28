@@ -1,14 +1,20 @@
 # Motivation :
 # -- all hyperparameters in one place
-# A. Model params:
-d_model     = 64
-num_heads   = 4
-num_layers  = 4
-dropout     = 0.6
-k_lap_pe    = 8     # (number of LapPE eigenvectors)
-max_dist    = 10    #  (SPD beyond this gets bucketed together)
+from dataclasses import dataclass
 
-# B.Training params:
-lr              = 0.005
-epochs          = 200
-weight_decay    = 5e-4
+@dataclass
+class Config:
+    # A. Model params:
+    d_model    :int  = 64
+    num_heads  :int = 4
+    num_layers :int = 4
+    dropout    :float = 0.6
+    k_lap_pe   :int = 32     # (number of LapPE eigenvectors)
+    max_dist   :int = 10    #  (SPD beyond this gets bucketed together)
+
+    # B.Training params:
+    lr            :float  = 0.005
+    epochs        :int  = 200
+    weight_decay  :float  = 5e-4
+
+    seed : int = 42    # for reproducibility
