@@ -61,11 +61,3 @@ class GraphTransformerAttention(nn.Module):
         attention = self.W_O(attention) # attention @ W_O.T ||| (num_nodes, d_model) @ (d_model, d_model)
 
         return attention
-
-# if __name__ == "__main__":
-#     import torch
-#     graphTransformerAttention = GraphTransformerAttention(64, 0.6, 4, 10)
-#     x = torch.randn(2708, 64)
-#     spd_matrix = torch.randint(0, 12, (2708, 2708))
-#     out = graphTransformerAttention(x, spd_matrix)
-#     print(out.shape)

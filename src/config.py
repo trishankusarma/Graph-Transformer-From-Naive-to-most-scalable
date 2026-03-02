@@ -11,6 +11,7 @@ class Config:
     dropout    :float = 0.4
     k_lap_pe   :int = 32     # (number of LapPE eigenvectors)
     max_dist   :int = 10    #  (SPD beyond this gets bucketed together)
+    d_ff       :int = 256   # 4*d_model
 
     # B.Training params:
     lr            :float  = 0.005
