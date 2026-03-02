@@ -3,7 +3,7 @@
 import torch.nn as nn
 import torch.nn.functional as F
 
-from attention import GraphTransformerAttention
+from .attention import GraphTransformerAttention
 
 class GraphTransformerLayer(nn.Module):
     # In one Graph Transformer layer, we have 2 sublayers
@@ -32,11 +32,3 @@ class GraphTransformerLayer(nn.Module):
         x = x + self.dropout(self.ff2(self.dropout(F.gelu(self.ff1(self.norm2(x))))))
 
         return x
-
-# if __name__ == "__main__":
-#     import torch
-#     layer = GraphTransformerLayer(64, 0.4, 4, 10, 256)
-#     x = torch.randn(2708, 64)
-#     spd_matrix = torch.randint(0, 12, (2708, 2708))
-#     out = layer(x, spd_matrix)
-#     print(out.shape)   # torch.Size([2708, 64])

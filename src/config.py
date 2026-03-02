@@ -19,3 +19,6 @@ class Config:
     weight_decay  :float  = 5e-4
 
     seed : int = 42    # for reproducibility
+
+    # C. Database params
+    d_classes = 7
