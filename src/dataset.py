@@ -9,7 +9,7 @@
 from torch_geometric.datasets import Planetoid
 import torch
 from collections import deque
-from config import Config
+from .config import Config
 config = Config()
 
 def compute_normalized_laplacian_pe(adj_matrix, degree, num_nodes):#  = I - D^(-0.5)AD^(-0.5) 
@@ -49,7 +49,7 @@ def compute_smallest_distance_matrix(adj_list, num_nodes, start_node):
                 
     return distance
 
-def load_data(train_dir):
+def load_data_and_evaluate_pe(train_dir):
     # step 1
     print(f"Loading data from {train_dir}")
     dataset = Planetoid(root=train_dir, name='Cora')
@@ -100,11 +100,10 @@ def load_data(train_dir):
     distance_matrix[distance_matrix == -1] = config.max_dist + 1  # unreachable nodes
     distance_matrix = distance_matrix.clamp(0, config.max_dist)
 
-    print(f"LapPE shape: {eigenvectors.shape}")        # should be [2708, 32]
-    print(f"SPD matrix shape: {distance_matrix.shape}") # should be [2708, 2708]
-    print(f"SPD unique values: {distance_matrix.unique()}")  # should be 0,1,2,...,10,11
+    print(f"LapPE shape: {eigenvectors.shape}")        # [2708, 32]
+    print(f"SPD matrix shape: {distance_matrix.shape}") # [2708, 2708]
+    print(f"SPD unique values: {distance_matrix.unique()}")  # 0,1,2,...,10,11
 
-    # add this
     return {
         'x'          : data.x,
         'y'          : data.y,
