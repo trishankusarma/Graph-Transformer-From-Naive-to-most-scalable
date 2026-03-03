@@ -63,3 +63,10 @@ concat      : [2708, 1465]   ← this is the actual input to the model
 
 then in graph_transformer.py:
 Linear(1441 → d_model)  →  [2708, 64]   ← this happens ONCE before any layer
+
+"Global attention needs either:
+ - More labeled data, OR
+ - Architectural constraints (local bias)
+ 
+ This motivates the next iteration:
+ hybrid local+global attention"

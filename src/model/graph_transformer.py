@@ -29,9 +29,11 @@ class GraphTransformer(nn.Module):
         # Step 1.4
         self.classifier = nn.Linear(config.d_model, config.d_classes)
     
-    def forward(self, x, k_eigen_vectors_pe, spd_matrix):
+    def forward(self, x, k_eigen_vectors_pe, spd_matrix, config):
         # Step 2.1 :: concat the node features with the positional encoding
         x = torch.cat([x, k_eigen_vectors_pe], dim = 1) # (num_nodes, feature_dim + k_lap_pe)
+        # This is something I add to control over-fitting
+        x = F.dropout(x, p=config.dropout_input, training=self.training) # adding drop out for more generelizability
 
         # Step 2.2 :: project to d_model
         x = self.input_projection(x) # (num_nodes, d_model)

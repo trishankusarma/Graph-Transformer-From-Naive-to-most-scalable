@@ -2,6 +2,7 @@
 # -- multi-head global attention + SPD bias
 import torch.nn as nn
 import torch.nn.functional as F
+import torch
 
 class GraphTransformerAttention(nn.Module):
     def __init__(self, d_model, dropout, num_heads, max_dist):
@@ -23,6 +24,9 @@ class GraphTransformerAttention(nn.Module):
         self.spd_bias = nn.Embedding(max_dist+2, num_heads)
         # max_dist+2 buckets: 0,1,...,max_dist and max_dist+1 (unreachable)
         self.d_k = d_model // num_heads # dimensions per head
+        # Improvement over learning scalar for direct edges
+        self.edge_bias = nn.Parameter(torch.zeros(1)) # tensor([1]) # 1-D vector -> [1,1,1]
+        self.temperature = nn.Parameter(torch.tensor(1.0)) # tensor() # a pure scaler
     
     def forward(self, x, spd_matrix):
         num_nodes, d_model = x.shape[0], x.shape[1]
@@ -39,13 +43,20 @@ class GraphTransformerAttention(nn.Module):
 
         # Step 3 :: Calculate the logit scores
         scores = Q @ K.transpose(-2, -1) # (num_heads, num_nodes, d_k) @ (num_heads, d_k, num_nodes)
-        scores = scores / (self.d_k ** 0.5) # (num_heads, num_nodes, num_nodes)
+        # scores = scores / (self.d_k ** 0.5*T) # (num_heads, num_nodes, num_nodes)
+        scores = scores / (self.d_k ** (0.5 * self.temperature.abs().clamp(min=0.1)))
+        # (num_heads, num_nodes, num_nodes) :: scores scaled by 1/(d_k^0.5 * 0.1) → 10x sharper
 
         # Step 4 :: Bias calculation
         bias = self.spd_bias(spd_matrix).permute(2, 0, 1) # (num_nodes, num_nodes, num_heads) -> (num_heads, num_nodes, num_nodes)
+
+        # build edge mask — 1 if direct neighbors, 0 otherwise
+        adj_mask = (spd_matrix == 1).float()           # [N, N]
+        adj_mask = adj_mask.unsqueeze(0)               # [1, N, N]
+        scores = scores + self.edge_bias * adj_mask + bias  # boost direct neighbors (num_heads, num_nodes, num_nodes)
         
         # Step 5 :: Calculating the softmax over all the keys for each query
-        attention_weight = F.softmax(scores + bias, dim = -1) # (num_heads, num_nodes, num_nodes)
+        attention_weight = F.softmax(scores, dim = -1) # (num_heads, num_nodes, num_nodes)
         # Step 5.1 :: Apply dropout
         attention_weight = self.dropout(attention_weight)
 
