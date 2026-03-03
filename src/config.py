@@ -7,7 +7,8 @@ class Config:
     # A. Model params:
     d_model    :int  = 64
     num_heads  :int = 4
-    num_layers :int = 2
+    num_layers :int = 2 # this refers to transformer layers
+    num_gcn_layers :int = 2 
     dropout    :float = 0.5
     k_lap_pe   :int = 32     # (number of LapPE eigenvectors)
     max_dist   :int = 10    #  (SPD beyond this gets bucketed together)
@@ -30,3 +31,4 @@ class Config:
     patience :int = 30
     dropout_input :float = 0.5
     no_of_cpu_threads :int = 4
+    approach :int = 2

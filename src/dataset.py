@@ -46,7 +46,7 @@ def compute_smallest_distance_matrix(adj_list, num_nodes, start_node):
             if distance[neighbor] == -1:
                 distance[neighbor] = distance[node] + 1
                 queue.append(neighbor)
-                
+
     return distance
 
 def load_data_and_evaluate_pe(train_dir):
@@ -108,6 +108,7 @@ def load_data_and_evaluate_pe(train_dir):
         'x'          : data.x,
         'y'          : data.y,
         'lap_pe'     : eigenvectors,
+        'adj_matrix' : adj_matrix,
         'spd_matrix' : distance_matrix,
         'train_mask' : data.train_mask,
         'val_mask'   : data.val_mask,

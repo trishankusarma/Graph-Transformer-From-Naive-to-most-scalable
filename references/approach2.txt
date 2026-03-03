@@ -1,0 +1,29 @@
+Hybrid architecture :
+The idea is simple — do local aggregation first, then global attention:
+
+Input [N, d_model]
+      │
+      ▼
+GNN Layer (local message passing over neighbors)
+      │                    ← captures local structure
+      ▼
+Graph Transformer Layer (global attention)
+      │                    ← captures long range dependencies
+      ▼
+Classifier
+
+Each GNN layer before the Transformer gives the model pre-aggregated neighborhood information 
+— so global attention operates on richer node representations rather than raw features.
+
+Approach 2— GCN + GT Hybrid          ← simplest
+  GCN layers → GT layers
+
+GCN -> Adding self loops -> Normalize -> Aggregation & Transformation
+
+Follow up approaches :
+
+Approach 3 — Local + Global per layer  ← middle ground
+  Each layer does both local and global attention, adds them
+
+Approach 4 NodeFormer / DIFFormer    ← most complex
+  Learnable sparse attention with kernelized approximation

@@ -1,0 +1,48 @@
+(base) [aiy257584@chas037 ~/scratch/Workspace/Graph-Transformer-From-Naive-to-most-scalable]
+$ bash run_model.sh  train ./data/cora
+Running run_model.sh
+Training
+Step 1: Loading training dataset from Cora :: building up the positional encodings and concat
+Loading data from ./data/cora
+Number of nodes: 2708
+Number of edges: 10556
+Node feature shape: torch.Size([2708, 1433])
+Labels shape: torch.Size([2708])
+Edge_index shape torch.Size([2, 10556])
+Computing the positional encoding of the data
+Adjacency matrix shape: torch.Size([2708, 2708])
+Non zero entries: 10556
+Degree stats → min: 1.0, max: 168.0, mean: 3.90
+Computing the Smallest Distance Matrix
+LapPE shape: torch.Size([2708, 32])
+SPD matrix shape: torch.Size([2708, 2708])
+SPD unique values: tensor([ 0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10])
+Step 2: Initiating the Graph transformer model
+Step 3: Starting the training phase
+Epoch 10/200 :: Loss = 1.9481 :: val acc = 0.2560 :: test acc = 0.2610
+Saved the best model
+Epoch 20/200 :: Loss = 1.7563 :: val acc = 0.2760 :: test acc = 0.2780
+Saved the best model
+Epoch 30/200 :: Loss = 1.2550 :: val acc = 0.4560 :: test acc = 0.4900
+Saved the best model
+Epoch 40/200 :: Loss = 0.8271 :: val acc = 0.5240 :: test acc = 0.5480
+Saved the best model
+Epoch 50/200 :: Loss = 0.5799 :: val acc = 0.5560 :: test acc = 0.5670
+Saved the best model
+Epoch 60/200 :: Loss = 0.3445 :: val acc = 0.5480 :: test acc = 0.5560
+Epoch 70/200 :: Loss = 0.2571 :: val acc = 0.5060 :: test acc = 0.5200
+Epoch 80/200 :: Loss = 0.2282 :: val acc = 0.5440 :: test acc = 0.5530
+Epoch 90/200 :: Loss = 0.1649 :: val acc = 0.6020 :: test acc = 0.5990
+Saved the best model
+Epoch 100/200 :: Loss = 0.1192 :: val acc = 0.5500 :: test acc = 0.5500
+Epoch 110/200 :: Loss = 0.0813 :: val acc = 0.4940 :: test acc = 0.5030
+Epoch 120/200 :: Loss = 0.1027 :: val acc = 0.5800 :: test acc = 0.5620
+Epoch 130/200 :: Loss = 0.0680 :: val acc = 0.5340 :: test acc = 0.5160
+Epoch 140/200 :: Loss = 0.0508 :: val acc = 0.5740 :: test acc = 0.5630
+Epoch 150/200 :: Loss = 0.0864 :: val acc = 0.5080 :: test acc = 0.5230
+Epoch 160/200 :: Loss = 0.0563 :: val acc = 0.5820 :: test acc = 0.5660
+Epoch 170/200 :: Loss = 0.0412 :: val acc = 0.5360 :: test acc = 0.5430
+Epoch 180/200 :: Loss = 0.0470 :: val acc = 0.5760 :: test acc = 0.5820
+Epoch 190/200 :: Loss = 0.0340 :: val acc = 0.5500 :: test acc = 0.5630
+Epoch 200/200 :: Loss = 0.0949 :: val acc = 0.5300 :: test acc = 0.5280
+Plots saved in directory: ./plots

@@ -1,3 +1,5 @@
+Approach Name : Pure Global Attention on Cora
+
 graph_transformer/
 │
 ├── data/
@@ -70,3 +72,11 @@ Linear(1441 → d_model)  →  [2708, 64]   ← this happens ONCE before any lay
  
  This motivates the next iteration:
  hybrid local+global attention"
+
+Conclusion :
+
+Pure global attention on Cora    →  ~60%
+GCN (local, no attention)        →  ~81%
+GAT (local, learned attention)   →  ~83%
+
+So we can conclude that local inductive bias is essential for Cora

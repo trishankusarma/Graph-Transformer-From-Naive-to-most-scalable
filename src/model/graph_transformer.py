@@ -29,7 +29,7 @@ class GraphTransformer(nn.Module):
         # Step 1.4
         self.classifier = nn.Linear(config.d_model, config.d_classes)
     
-    def forward(self, x, k_eigen_vectors_pe, spd_matrix, config):
+    def forward(self, x, k_eigen_vectors_pe, spd_matrix, config, **kwargs):
         # Step 2.1 :: concat the node features with the positional encoding
         x = torch.cat([x, k_eigen_vectors_pe], dim = 1) # (num_nodes, feature_dim + k_lap_pe)
         # This is something I add to control over-fitting

@@ -1,7 +1,9 @@
 import matplotlib.pyplot as plt
 import os
 
-def plot_curves(training_loss = None, val_accuracy = None, test_accuracy = None, epochs = 200, skip_accuracy_freq = 10, plot_dir = './plots'):
+def plot_curves(training_loss = None, val_accuracy = None, test_accuracy = None, epochs = 200, skip_accuracy_freq = 10, approach = 1, plot_dir = './plots'):
+
+    plot_dir = plot_dir + '/approach' + approach
     # Create directory if not exists
     os.makedirs(plot_dir, exist_ok=True)
 
