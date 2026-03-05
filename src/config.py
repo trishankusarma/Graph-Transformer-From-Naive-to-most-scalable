@@ -13,10 +13,11 @@ class Config:
     k_lap_pe   :int = 32     # (number of LapPE eigenvectors)
     max_dist   :int = 10    #  (SPD beyond this gets bucketed together)
     d_ff       :int = 256   # 4*d_model
+    leaky_relu_slope :float = 5 
 
     # B.Training params:
     lr            :float  = 0.0005
-    epochs        :int  = 200
+    epochs        :int  = 400
     weight_decay  :float  = 5e-3
     max_gradient_clip :float = 1.0
     eta_min :float  = 1e-3

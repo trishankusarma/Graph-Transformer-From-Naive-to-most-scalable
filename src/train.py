@@ -4,6 +4,7 @@ import sys
 import torch
 import torch.nn.functional as F
 import os
+from tqdm import tqdm
 
 from .dataset import load_data_and_evaluate_pe
 from src.model.graph_transformer import GraphTransformer
@@ -84,7 +85,7 @@ if __name__ == "__main__":
     patience_counter = 0
 
     print("Step 3: Starting the training phase")
-    for epoch in range(config.epochs):
+    for epoch in tqdm(range(config.epochs), desc = 'Training epochs'):
         
         model.train()
         optimizer.zero_grad()
@@ -120,7 +121,7 @@ if __name__ == "__main__":
                 mask = test_mask,
                 Adj_matrix = adj_matrix
             )
-            print(f"Epoch {epoch+1}/{config.epochs} :: Loss = {loss.item():.4f} :: val acc = {val_acc:.4f} :: test acc = {test_acc:.4f}")
+            tqdm.write(f"Epoch {epoch+1}/{config.epochs} :: Loss = {loss.item():.4f} :: val acc = {val_acc:.4f} :: test acc = {test_acc:.4f}")
             val_accuracy.append(val_acc)
             test_accuracy.append(test_acc)
 
@@ -129,12 +130,12 @@ if __name__ == "__main__":
                 best_test_acc = test_acc
                 patience_counter = 0
                 torch.save(model.state_dict(), os.path.join(PLOT_DIR, './best_model.pt'))
-                print("Saved the best model")
+                tqdm.write("Saved the best model")
             else:
                 patience_counter += 1
 
             if patience_counter >= config.patience:
-                print(f"Early stopping at epoch {epoch+1}")
+                tqdm.write(f"Early stopping at epoch {epoch+1}")
                 break
 
     plot_curves(

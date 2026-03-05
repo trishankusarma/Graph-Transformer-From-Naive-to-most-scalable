@@ -1,0 +1,64 @@
+Instead of sequential (GCN then GT), each layer now does both simultaneously and combines them
+
+Approach 3 — Parallel per layer:
+x → [GAT ‖ GT] → [GAT ‖ GT] → classifier
+     add them      add them
+
+Architecture:
+
+input x [N, d_model]
+        │
+   LayerNorm(x)
+        │
+   ┌────┴────┐
+   │         │
+  GAT        GT
+(local)   (global)
+   │         │
+   └────+────┘
+        │
+     combine          
+        │
+     Dropout
+        │
+     Residual: x = x + combined
+        │
+   LayerNorm(x)
+        │
+       FFN
+        │
+     Dropout
+        │
+     Residual
+        │
+output x [N, d_model]
+
+The Key Question — How to Combine GAT and GT outputs?
+
+Three options:
+
+Option A — Simple Addition
+
+out = gat_out + gt_out
+Equal weight to both. Simple but fixed — can't learn which matters more.
+
+Option B — Learned Weighted Sum
+
+# learned scalar gate per head or per dim
+alpha = torch.sigmoid(self.gate)      # scalar in [0,1]
+out = alpha * gat_out + (1-alpha) * gt_out
+
+Model learns how much to trust local vs global. Clean and interpretable.
+
+Option C — Concatenation + Projection
+
+out = torch.cat([gat_out, gt_out], dim=-1)  # [N, 2*d_model]
+out = self.proj(out)                         # [N, d_model]
+```
+Most expressive — model can mix local and global features freely. Costs extra parameters.
+
+GAT-GT is supposed to work better because:
+
+GAT's learned neighbor attention > GCN's fixed weights
+Per-layer combination lets model decide local vs global at each depth
+Gate learns the right balance automatically

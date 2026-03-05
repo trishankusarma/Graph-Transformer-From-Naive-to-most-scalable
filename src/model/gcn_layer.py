@@ -13,9 +13,9 @@ class GCN_Layer(nn.Module):
         self.W = nn.Linear(d_model, d_model, bias = False)
         self.dropout = nn.Dropout(dropout)
     
-    def forward(self, Adj_matrix, X):
+    def forward(self, Adj_matrix, x):
         # Step 1
-        num_nodes = X.shape[0]
+        num_nodes = x.shape[0]
         I = torch.eye(num_nodes) #(num_nodes, num_nodes)
 
         Adj_matrix = Adj_matrix +  I #(num_nodes, num_nodes)
@@ -30,7 +30,7 @@ class GCN_Layer(nn.Module):
 
         # Step 3
         # (num_nodes, num_nodes) @ (num_nodes, d_model) @ (d_model, d_model)
-        Z = self.W(Adj_matrix_norm @ X)
+        Z = self.W(Adj_matrix_norm @ x)
 
         # Step 4
         Z = F.relu(Z)

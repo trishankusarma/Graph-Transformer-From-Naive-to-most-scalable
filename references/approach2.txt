@@ -20,6 +20,26 @@ Approach 2— GCN + GT Hybrid          ← simplest
 
 GCN -> Adding self loops -> Normalize -> Aggregation & Transformation
 
+Key finding:
+  Global attention alone → 60%
+  Local (GCN) + Global (GT) → 79.20%
+
+  The 20% gap empirically proves that
+  local inductive bias is essential before
+  global attention on small graphs like Cora.
+
+Note :
+Pure GCN is perfectly designed for Cora:
+  - 2 layers = exactly 2-hop neighborhood
+  - Direct classification from aggregated features
+  - No redundant transformations
+  - Minimal parameters = less overfitting on 140 nodes
+
+Our Hybrid has extra complexity:
+  - Input projection (extra transformation)
+  - GT layers after GCN (extra parameters to overfit)
+  - More total parameters trained on same 140 nodes
+
 Follow up approaches :
 
 Approach 3 — Local + Global per layer  ← middle ground
