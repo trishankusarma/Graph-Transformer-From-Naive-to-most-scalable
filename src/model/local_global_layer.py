@@ -17,7 +17,7 @@ class Local_Global_Transformer_Layer(nn.Module):
         self.GAT_layer = GAT_Layer(d_model, leaky_relu_slope, dropout)
         self.Transformer_Layer = GraphTransformerLayer(d_model, dropout, num_heads, max_dist, d_ff)
 
-        self.gate = nn.Parameter(torch.tensor(0.0))
+        self.gate = nn.Parameter(torch.tensor(2.0))   # sigmoid(2.0)=0.88 → local dominant
         self.dropout = nn.Dropout(dropout)
 
         self.ff1 = nn.Linear(d_model, d_ff, bias = True)

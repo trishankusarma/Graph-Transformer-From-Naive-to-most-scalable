@@ -33,11 +33,11 @@ def getModel(approach):
         raise ValueError(f"Unknown approach: {approach}. Choose from {list(MODEL_REGISTRY.keys())}")
     return MODEL_REGISTRY[approach]
 
-def evaluate(model, x, y, k_eigen_vectors_pe, spd_matrix, mask, Adj_matrix):
+def evaluate(model, x, y, k_eigen_vectors_pe, spd_matrix, mask, Adj_matrix, edge_list):
     model.eval()
     
     with torch.no_grad():
-        out = model(x = x, k_eigen_vectors_pe = k_eigen_vectors_pe, spd_matrix = spd_matrix, config = config, Adj_matrix = Adj_matrix) # (num_nodes, num_classes)
+        out = model(x = x, k_eigen_vectors_pe = k_eigen_vectors_pe, spd_matrix = spd_matrix, config = config, Adj_matrix = Adj_matrix, edge_list = edge_list) # (num_nodes, num_classes)
         preds = out.argmax(dim = -1) # (num_nodes, 1)
 
         correct_pred = (preds[mask] == y[mask]).sum().item()
@@ -113,7 +113,8 @@ if __name__ == "__main__":
                 k_eigen_vectors_pe = lap_pe, 
                 spd_matrix = spd_matrix,
                 mask = val_mask,
-                Adj_matrix = adj_matrix
+                Adj_matrix = adj_matrix,
+                edge_list = edge_list
             )
             test_acc = evaluate(
                 model = model,
@@ -122,7 +123,8 @@ if __name__ == "__main__":
                 k_eigen_vectors_pe = lap_pe, 
                 spd_matrix = spd_matrix,
                 mask = test_mask,
-                Adj_matrix = adj_matrix
+                Adj_matrix = adj_matrix,
+                edge_list = edge_list
             )
             tqdm.write(f"Epoch {epoch+1}/{config.epochs} :: Loss = {loss.item():.4f} :: val acc = {val_acc:.4f} :: test acc = {test_acc:.4f}")
             val_accuracy.append(val_acc)
@@ -141,6 +143,14 @@ if __name__ == "__main__":
                 tqdm.write(f"Early stopping at epoch {epoch+1}")
                 break
 
+    if config.approach == 3:
+        model.load_state_dict(torch.load(f'{PLOT_DIR}/best_model.pt'))
+        print("\nLearned gate values:")
+        for i, layer in enumerate(model.layers):
+            alpha = torch.sigmoid(layer.gate).item()
+            dominant = 'LOCAL (GAT)' if alpha > 0.5 else 'GLOBAL (GT)'
+            print(f"Layer {i+1}: alpha={alpha:.3f} → {dominant} dominant")
+   
     plot_curves(
         training_loss = training_loss, 
         val_accuracy = val_accuracy, 

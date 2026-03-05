@@ -11,7 +11,6 @@ class LocalGlobalTransformer(nn.Module):
         super().__init__()
 
         # Step 1
-        self.dropout = nn.Dropout(config.dropout_input)
         self.input_projection = nn.Linear(input_feature_dim + config.k_lap_pe, config.d_model, bias = False)
         # Step 2
         self.layers = nn.ModuleList([
@@ -22,10 +21,10 @@ class LocalGlobalTransformer(nn.Module):
         # Step 4
         self.classification = nn.Linear(config.d_model, config.d_classes, bias = False)
 
-    def forward(self, x, k_eigen_vectors_pe, spd_matrix, edge_list, **kwargs):
+    def forward(self, x, k_eigen_vectors_pe, spd_matrix, edge_list, config, **kwargs):
         # Step 1 : Concat and input dropout for generalization -> project
         combined_x = torch.cat([x, k_eigen_vectors_pe], dim = 1)
-        x = self.dropout( self.input_projection(combined_x))
+        x = F.dropout(self.input_projection(combined_x), p=config.dropout_input, training=self.training)
 
         # Step 2: Layering
         for layer in self.layers:

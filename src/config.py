@@ -17,7 +17,7 @@ class Config:
     # B.Training params:
     lr            :float  = 0.0005
     epochs        :int  = 400
-    weight_decay  :float  = 5e-3
+    weight_decay  :float  = 1e-2
     max_gradient_clip :float = 1.0
     eta_min :float  = 1e-5
 
@@ -34,5 +34,5 @@ class Config:
     approach :int = 3
 
     # Approach 3
-    num_lg_layers :int = 4
+    num_lg_layers :int = 2
     leaky_relu_slope :float = 0.2
