@@ -9,6 +9,7 @@ from tqdm import tqdm
 from .dataset import load_data_and_evaluate_pe
 from src.model.graph_transformer import GraphTransformer
 from src.model.gcn_gt_hybrid_transformer import GCN_GT_Hybrid_Transformer
+from src.model.local_global_transformer import LocalGlobalTransformer
 from .config import Config
 from src.utils.plot_utils import plot_curves
 config = Config()
@@ -24,6 +25,7 @@ os.makedirs(PLOT_DIR, exist_ok=True)
 MODEL_REGISTRY = {
     1: GraphTransformer,
     2: GCN_GT_Hybrid_Transformer,
+    3: LocalGlobalTransformer
 }
 
 def getModel(approach):
@@ -51,11 +53,12 @@ if __name__ == "__main__":
     print("Step 1: Loading training dataset from Cora :: building up the positional encodings and concat")
     dataset_info = load_data_and_evaluate_pe(input_data)
 
-    x, y, lap_pe, adj_matrix, spd_matrix, train_mask, val_mask, test_mask = (
+    x, y, lap_pe, adj_matrix, edge_list, spd_matrix, train_mask, val_mask, test_mask = (
         dataset_info['x'], 
         dataset_info['y'], 
         dataset_info['lap_pe'], 
         dataset_info['adj_matrix'],
+        dataset_info['edge_list'],
         dataset_info['spd_matrix'],
         dataset_info['train_mask'],
         dataset_info['val_mask'],
@@ -91,7 +94,7 @@ if __name__ == "__main__":
         optimizer.zero_grad()
 
         # Forward pass
-        out = model(x = x, k_eigen_vectors_pe = lap_pe, spd_matrix = spd_matrix, Adj_matrix = adj_matrix, config = config)
+        out = model(x = x, k_eigen_vectors_pe = lap_pe, spd_matrix = spd_matrix, Adj_matrix = adj_matrix, edge_list = edge_list, config = config)
         # loss
         loss = F.nll_loss(out[train_mask], y[train_mask])
         # backward

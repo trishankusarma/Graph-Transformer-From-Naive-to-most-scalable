@@ -1,24 +1,44 @@
 # Motivation
 # one layer combining GAT + GT + gate
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
 
+from .gat_layer import GAT_Layer
+from .transformer_layer import GraphTransformerLayer
 
-# if __name__ == "__main__":
-#     import torch
-#     num_nodes = 20
-#     embed_dim = 32
-#     x = torch.randn(num_nodes, embed_dim)
-    
-#     edge_list = []
-#     p = 0.4
-#     for i in range(num_nodes):
-#         for j in range(i+1, num_nodes):
-#             import random
-#             if random.random() < p:
-#                 edge_list.append([i, j])
-#                 edge_list.append([j, i])
+class Local_Global_Transformer_Layer(nn.Module):
+    def __init__(self, d_model, leaky_relu_slope, dropout, num_heads, max_dist, d_ff):
+        super().__init__()
+        
+        self.norm1 = nn.LayerNorm(d_model)
+        self.norm2 = nn.LayerNorm(d_model)
 
-#     d_model = embed_dim
-#     gat_layer = GAT_Layer(d_model, 5, 0.3)
-#     out = gat_layer(x, edge_list)
+        self.GAT_layer = GAT_Layer(d_model, leaky_relu_slope, dropout)
+        self.Transformer_Layer = GraphTransformerLayer(d_model, dropout, num_heads, max_dist, d_ff)
 
-#     print(out.shape)
+        self.gate = nn.Parameter(torch.tensor(0.0))
+        self.dropout = nn.Dropout(dropout)
+
+        self.ff1 = nn.Linear(d_model, d_ff, bias = True)
+        self.ff2 = nn.Linear(d_ff, d_model, bias = True)
+
+    def forward(self, x, edge_list, spd_matrix):
+        # x(num_nodes, d_model) 
+        # Step 1: Layer Normalization
+        x_norm = self.norm1(x)
+        # Step 2: Apply GAT and GT parallely
+        x1 = self.GAT_layer(x_norm, edge_list)
+        x2 = self.Transformer_Layer(x_norm, spd_matrix)
+        # Step 3: Combine via x = alpha*x1 + (1-alpha)*x2
+        alpha = torch.sigmoid(self.gate)
+        x_combined = alpha * x1 + (1-alpha) * x2
+        # Step 4: apply Dropout and apply residual connection
+        x = x + self.dropout(x_combined)
+        # Step 5: LayerNormalization
+        x_norm = self.norm2(x)
+        # Step 6: Apply FFNN -> Dropout -> apply residual connection
+        x_ff1_forward = self.dropout(F.gelu(self.ff1(x_norm)))
+        x =  x + self.dropout(self.ff2(x_ff1_forward))
+
+        return x

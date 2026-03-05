@@ -13,14 +13,13 @@ class Config:
     k_lap_pe   :int = 32     # (number of LapPE eigenvectors)
     max_dist   :int = 10    #  (SPD beyond this gets bucketed together)
     d_ff       :int = 256   # 4*d_model
-    leaky_relu_slope :float = 5 
 
     # B.Training params:
     lr            :float  = 0.0005
     epochs        :int  = 400
     weight_decay  :float  = 5e-3
     max_gradient_clip :float = 1.0
-    eta_min :float  = 1e-3
+    eta_min :float  = 1e-5
 
     seed :int = 42    # for reproducibility
 
@@ -29,7 +28,11 @@ class Config:
 
     # D. Miscellenous
     skip_accuracy_freq :int = 10
-    patience :int = 30
+    patience :int = 50
     dropout_input :float = 0.5
     no_of_cpu_threads :int = 4
-    approach :int = 2
+    approach :int = 3
+
+    # Approach 3
+    num_lg_layers :int = 4
+    leaky_relu_slope :float = 0.2
