@@ -1,0 +1,81 @@
+Input Graph G = (V, E, X)
+        │
+   Node Feature Projection
+        │
+┌───────────────────────────────────┐
+│   LSH-Graph Sparse Attention      │  ← your module
+│                                   │
+│  1. Hash Q, K into buckets        │
+│  2. Attend within buckets (fast)  │
+│  3. Force graph edges back in     │  ← recovery signal 1
+│  4. GNN residual correction       │  ← recovery signal 2
+│  5. Multi-resolution hash merge   │  ← recovery signal 3
+└───────────────────────────────────┘
+        │
+   FFN + LayerNorm
+        │
+   Stack × L layers
+        │
+   Task Head (node/graph classification)
+
+Research Questions :
+
+RQ1: How much information is lost by LSH sparsification
+     on graph-structured data vs random data?
+
+RQ2: Does graph-structure-aware recovery outperform
+     feature-similarity-only LSH?
+
+RQ3: What is the accuracy-efficiency tradeoff as you
+     vary the number of hash buckets?
+
+RQ4: Does the module transfer across graph domains
+     (citation, molecular, social) without retraining?
+
+RQ5: How does it compare to NodeFormer, BigBird-GNN,
+     and full attention on large graphs?
+
+Feasibility Check :
+
+Timeline estimate:
+  Month 1-2: Implement LSH attention module
+             Test on Cora, Citeseer, ogbn-arxiv
+  Month 3:   Add recovery mechanisms, ablation study
+  Month 4:   Scale to large graphs, GraphFM integration
+  Month 5-6: Writing, experiments, comparisons
+
+Codebase: You already have
+  ✓ Full attention GT (approach 1)
+  ✓ Local+global hybrid (approaches 2,3)
+  ✓ Dataset pipeline
+  ✓ Training infrastructure
+  
+  You just need to replace attention.py
+  with LSH version — everything else reuses
+
+The One-Line Research Pitch
+
+"We propose LSH-Graph Attention — a structure-aware
+sparse attention mechanism that uses locality-sensitive
+hashing for O(N log N) complexity while recovering
+dropped information through graph-structure residuals,
+enabling scalable graph transformers as plug-in modules
+for graph foundation models."
+
+What to Build Next
+Given your existing codebase, the natural next step is:
+
+1. Implement basic LSH attention     ← replace attention.py
+   Test: does LSH alone match full attention?
+
+2. Add graph-edge recovery           ← force edges back in
+   Test: does recovery help vs pure LSH?
+
+3. Add GNN residual corrector        ← the novel part
+   Test: ablation — which recovery signal helps most?
+
+4. Scale to ogbn-arxiv               ← prove scalability claim
+   Test: accuracy vs NodeFormer, full GT
+
+5. Plug into GraphGPS framework      ← architecture-agnostic claim
+   Test: does your module improve any backbone?

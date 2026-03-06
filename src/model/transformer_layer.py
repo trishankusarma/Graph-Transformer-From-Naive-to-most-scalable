@@ -11,17 +11,17 @@ class GraphTransformerLayer(nn.Module):
         # LayerNorm -> Attention -> Dropout -> Residual 
         # Sublayer 2
         # LayerNorm -> FFN1 -> GeLU -> Dropout -> FFN2 -> Dropout -> Residual
-    def __init__(self, d_model, dropout, num_heads, max_dist, d_ff):
+    def __init__(self, config):
         super().__init__()
         
-        self.norm1 = nn.LayerNorm(d_model)
-        self.attention = GraphTransformerAttention(d_model, dropout, num_heads, max_dist)
+        self.norm1 = nn.LayerNorm(config.d_model)
+        self.attention = GraphTransformerAttention(config)
         
-        self.dropout = nn.Dropout(dropout)
+        self.dropout = nn.Dropout(config.dropout)
         
-        self.norm2 = nn.LayerNorm(d_model)
-        self.ff1 = nn.Linear(d_model, d_ff, bias = True) # (d_model, d_ff)
-        self.ff2 = nn.Linear(d_ff, d_model, bias = True) # (d_ff, d_model)
+        self.norm2 = nn.LayerNorm(config.d_model)
+        self.ff1 = nn.Linear(config.d_model, config.d_ff, bias = True) # (d_model, d_ff)
+        self.ff2 = nn.Linear(config.d_ff, config.d_model, bias = True) # (d_ff, d_model)
     
     def forward(self, x, spd_matrix):
 

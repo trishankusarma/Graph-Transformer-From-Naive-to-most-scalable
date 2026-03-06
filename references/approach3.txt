@@ -62,3 +62,17 @@ GAT-GT is supposed to work better because:
 GAT's learned neighbor attention > GCN's fixed weights
 Per-layer combination lets model decide local vs global at each depth
 Gate learns the right balance automatically
+
+Architecture          Val Acc   Key Finding
+─────────────────────────────────────────────────────
+Naive GT (global)      60%     Global attention fails alone
+GCN+GT Sequential      77%     Local prerequisite for global
+GAT+GT Parallel        78%     Learned gate → local dominant
+Pure GCN (reference)   81%     Local is optimal for Cora
+Pure GAT (reference)   83%     Learned local beats fixed local
+
+Conclusion: On sparse, label-scarce graphs,
+local inductive bias dominates. GT adds value
+only when local context is already established
+(approach 2) or on larger graphs with richer
+supervision.

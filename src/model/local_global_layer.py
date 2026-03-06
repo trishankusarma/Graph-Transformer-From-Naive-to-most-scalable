@@ -8,20 +8,20 @@ from .gat_layer import GAT_Layer
 from .transformer_layer import GraphTransformerLayer
 
 class Local_Global_Transformer_Layer(nn.Module):
-    def __init__(self, d_model, leaky_relu_slope, dropout, num_heads, max_dist, d_ff):
+    def __init__(self, config, gate_init = 0.0):
         super().__init__()
         
-        self.norm1 = nn.LayerNorm(d_model)
-        self.norm2 = nn.LayerNorm(d_model)
+        self.norm1 = nn.LayerNorm(config.d_model)
+        self.norm2 = nn.LayerNorm(config.d_model)
 
-        self.GAT_layer = GAT_Layer(d_model, leaky_relu_slope, dropout)
-        self.Transformer_Layer = GraphTransformerLayer(d_model, dropout, num_heads, max_dist, d_ff)
+        self.GAT_layer = GAT_Layer(config.d_model, config.leaky_relu_slope, config.dropout)
+        self.Transformer_Layer = GraphTransformerLayer(config)
 
-        self.gate = nn.Parameter(torch.tensor(2.0))   # sigmoid(2.0)=0.88 → local dominant
-        self.dropout = nn.Dropout(dropout)
+        self.gate = nn.Parameter(torch.tensor(gate_init))   # sigmoid(2.0)=0.88 → local dominant
+        self.dropout = nn.Dropout(config.dropout)
 
-        self.ff1 = nn.Linear(d_model, d_ff, bias = True)
-        self.ff2 = nn.Linear(d_ff, d_model, bias = True)
+        self.ff1 = nn.Linear(config.d_model, config.d_ff, bias = True)
+        self.ff2 = nn.Linear(config.d_ff, config.d_model, bias = True)
 
     def forward(self, x, edge_list, spd_matrix):
         # x(num_nodes, d_model) 

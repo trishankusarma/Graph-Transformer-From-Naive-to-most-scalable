@@ -110,6 +110,7 @@ def load_data_and_evaluate_pe(train_dir):
         'lap_pe'     : eigenvectors,
         'adj_matrix' : adj_matrix,
         'edge_list'  : data.edge_index.T.tolist(),
+        'degree'     : degree,
         'spd_matrix' : distance_matrix,
         'train_mask' : data.train_mask,
         'val_mask'   : data.val_mask,

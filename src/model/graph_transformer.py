@@ -19,9 +19,7 @@ class GraphTransformer(nn.Module):
         self.input_projection = nn.Linear(input_feature_dim + config.k_lap_pe, config.d_model)
 
         # Step 1.2
-        self.layers = nn.ModuleList([GraphTransformerLayer(
-            config.d_model, config.dropout, config.num_heads, config.max_dist, config.d_ff
-        ) for _ in range(config.num_layers)])
+        self.layers = nn.ModuleList([GraphTransformerLayer(config) for _ in range(config.num_layers)])
 
         # Step 1.3
         self.final_norm = nn.LayerNorm(config.d_model)

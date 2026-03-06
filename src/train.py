@@ -25,7 +25,8 @@ os.makedirs(PLOT_DIR, exist_ok=True)
 MODEL_REGISTRY = {
     1: GraphTransformer,
     2: GCN_GT_Hybrid_Transformer,
-    3: LocalGlobalTransformer
+    3: LocalGlobalTransformer,
+    4: LocalGlobalTransformer # degree bias included
 }
 
 def getModel(approach):
@@ -33,11 +34,19 @@ def getModel(approach):
         raise ValueError(f"Unknown approach: {approach}. Choose from {list(MODEL_REGISTRY.keys())}")
     return MODEL_REGISTRY[approach]
 
-def evaluate(model, x, y, k_eigen_vectors_pe, spd_matrix, mask, Adj_matrix, edge_list):
+def evaluate(model, x, y, k_eigen_vectors_pe, spd_matrix, mask, Adj_matrix, edge_list, degree):
     model.eval()
     
     with torch.no_grad():
-        out = model(x = x, k_eigen_vectors_pe = k_eigen_vectors_pe, spd_matrix = spd_matrix, config = config, Adj_matrix = Adj_matrix, edge_list = edge_list) # (num_nodes, num_classes)
+        out = model(
+            x = x, 
+            k_eigen_vectors_pe = k_eigen_vectors_pe, 
+            spd_matrix = spd_matrix, 
+            config = config, 
+            Adj_matrix = Adj_matrix, 
+            edge_list = edge_list,
+            degree = degree
+        ) # (num_nodes, num_classes)
         preds = out.argmax(dim = -1) # (num_nodes, 1)
 
         correct_pred = (preds[mask] == y[mask]).sum().item()
@@ -53,12 +62,13 @@ if __name__ == "__main__":
     print("Step 1: Loading training dataset from Cora :: building up the positional encodings and concat")
     dataset_info = load_data_and_evaluate_pe(input_data)
 
-    x, y, lap_pe, adj_matrix, edge_list, spd_matrix, train_mask, val_mask, test_mask = (
+    x, y, lap_pe, adj_matrix, edge_list, degree, spd_matrix, train_mask, val_mask, test_mask = (
         dataset_info['x'], 
         dataset_info['y'], 
         dataset_info['lap_pe'], 
         dataset_info['adj_matrix'],
         dataset_info['edge_list'],
+        dataset_info['degree'],
         dataset_info['spd_matrix'],
         dataset_info['train_mask'],
         dataset_info['val_mask'],
@@ -68,11 +78,21 @@ if __name__ == "__main__":
     print("Step 2: Initiating the Graph transformer model")
     model = getModel(config.approach)(input_feature_dim = x.shape[1], config = config)
 
-    optimizer = torch.optim.Adam(
-        model.parameters(),
-        lr=config.lr,
-        weight_decay=config.weight_decay
-    )
+    # separating the parameters to help the gates learn better
+    gate_parameters = []
+    other_parameters = []
+
+    for name, param in model.named_parameters():
+        if 'gate' in name:
+            gate_parameters.append(param)
+        else:
+            other_parameters.append(param)
+
+    optimizer = torch.optim.Adam([
+        {'params': other_parameters, 'weight_decay': config.weight_decay, 'lr': config.lr},
+        {'params': gate_parameters,  'weight_decay': 0.0, 'lr': config.lr * 10}  # 10x faster and no decay on gates
+    ], lr=config.lr)
+
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
         optimizer, 
         T_max=config.epochs,
@@ -94,7 +114,15 @@ if __name__ == "__main__":
         optimizer.zero_grad()
 
         # Forward pass
-        out = model(x = x, k_eigen_vectors_pe = lap_pe, spd_matrix = spd_matrix, Adj_matrix = adj_matrix, edge_list = edge_list, config = config)
+        out = model(
+            x = x, 
+            k_eigen_vectors_pe = lap_pe, 
+            spd_matrix = spd_matrix, 
+            Adj_matrix = adj_matrix, 
+            edge_list = edge_list, 
+            degree = degree, 
+            config = config
+        )
         # loss
         loss = F.nll_loss(out[train_mask], y[train_mask])
         # backward
@@ -114,7 +142,8 @@ if __name__ == "__main__":
                 spd_matrix = spd_matrix,
                 mask = val_mask,
                 Adj_matrix = adj_matrix,
-                edge_list = edge_list
+                edge_list = edge_list,
+                degree = degree
             )
             test_acc = evaluate(
                 model = model,
@@ -124,7 +153,8 @@ if __name__ == "__main__":
                 spd_matrix = spd_matrix,
                 mask = test_mask,
                 Adj_matrix = adj_matrix,
-                edge_list = edge_list
+                edge_list = edge_list,
+                degree = degree
             )
             tqdm.write(f"Epoch {epoch+1}/{config.epochs} :: Loss = {loss.item():.4f} :: val acc = {val_acc:.4f} :: test acc = {test_acc:.4f}")
             val_accuracy.append(val_acc)
@@ -143,13 +173,13 @@ if __name__ == "__main__":
                 tqdm.write(f"Early stopping at epoch {epoch+1}")
                 break
 
-    if config.approach == 3:
-        model.load_state_dict(torch.load(f'{PLOT_DIR}/best_model.pt'))
-        print("\nLearned gate values:")
-        for i, layer in enumerate(model.layers):
-            alpha = torch.sigmoid(layer.gate).item()
-            dominant = 'LOCAL (GAT)' if alpha > 0.5 else 'GLOBAL (GT)'
-            print(f"Layer {i+1}: alpha={alpha:.3f} → {dominant} dominant")
+            if config.approach > 2 and (epoch+1) % (2*config.skip_accuracy_freq) == 0:
+                model.load_state_dict(torch.load(f'{PLOT_DIR}/best_model.pt'))
+                print("\nLearned gate values:")
+                for i, layer in enumerate(model.layers):
+                    alpha = torch.sigmoid(layer.gate).item()
+                    dominant = 'LOCAL (GAT)' if alpha > 0.5 else 'GLOBAL (GT)'
+                    print(f"Layer {i+1}: alpha={alpha:.3f} → {dominant} dominant")
    
     plot_curves(
         training_loss = training_loss, 

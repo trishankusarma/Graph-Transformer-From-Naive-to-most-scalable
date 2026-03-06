@@ -14,8 +14,11 @@ class LocalGlobalTransformer(nn.Module):
         self.input_projection = nn.Linear(input_feature_dim + config.k_lap_pe, config.d_model, bias = False)
         # Step 2
         self.layers = nn.ModuleList([
-            Local_Global_Transformer_Layer(config.d_model, config.leaky_relu_slope, config.dropout, config.num_heads, config.max_dist, config.d_ff)
-        for _ in range(config.num_lg_layers)])
+            Local_Global_Transformer_Layer(
+                config,
+                gate_init = 2.0 if i == 0 else 0.0
+            )
+        for i in range(config.num_lg_layers)])
         # Step 3
         self.final_norm = nn.LayerNorm(config.d_model)
         # Step 4

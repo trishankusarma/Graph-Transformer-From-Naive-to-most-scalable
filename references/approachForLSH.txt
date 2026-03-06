@@ -1,0 +1,85 @@
+  "Sparse attention in GNN"
+→ Replace O(N²) global attention with sparse patterns
+  Only attend to a subset of nodes, not all N
+
+"Modified by hashing techniques"
+→ Use locality-sensitive hashing (LSH) to decide
+  WHICH nodes attend to each other
+  Similar nodes → same hash bucket → attend to each other
+
+"Capture lost information"
+→ Standard sparse attention loses some signal
+  Your contribution: a mechanism to recover
+  information dropped by sparsification
+
+"Scalable to graph foundational models like graphFM"
+→ Architecture-agnostic — works as a drop-in
+  module for any graph transformer backbone
+
+The Core Technical Idea — LSH for Graph Attention
+
+How LSH Works for Attention
+Locality Sensitive Hashing maps similar vectors to the same bucket with high probability:
+Standard attention (O(N²)):
+  every node i attends to every node j
+  scores = Q @ K^T   [N, N]
+
+LSH attention (O(N log N)):
+  hash Q and K vectors into buckets
+  node i only attends to nodes j in same bucket
+  similar Q,K → same bucket → high attention score anyway
+
+The key insight: if Q_i · K_j is small, node i doesn't need to attend to j. LSH approximates this by grouping similar vectors.
+
+The Novel Part — Recovering Lost Information
+This is your actual contribution. Three angles to explore:
+Angle 1 — Graph Structure as Recovery Signal
+
+Standard LSH: drops pairs based on feature similarity only
+Your idea: if (i,j) is a graph edge but dropped by LSH,
+           force it back in — graph structure overrides hashing
+
+Recovery mechanism:
+  sparse_mask = LSH_mask OR adjacency_mask
+  attend to: (LSH similar pairs) ∪ (graph neighbors)
+
+Angle 2 — Residual Hash Correction
+
+After sparse attention, compute a correction term:
+  dropped_info = full_attention - sparse_attention
+  
+Train a small network to approximate dropped_info
+from local neighborhood:
+  correction = GNN(x, adj)   ← cheap local aggregation
+
+Final output = sparse_attention_output + correction
+
+Angle 3 — Multi-Resolution Hashing
+
+Instead of one hash function:
+  Hash 1 → coarse buckets  (captures global similarity)
+  Hash 2 → fine buckets    (captures local similarity)
+  Hash 3 → structure-aware (captures graph proximity)
+
+Combine outputs from all three hash levels
+→ multi-scale attention approximation
+
+Connection to GraphFM
+Graph Foundation Models (GraphFM, OneForAll, etc.) need:
+1. Scale to graphs with millions of nodes   ← your O(N log N) helps
+2. Transfer across graph domains            ← architecture-agnostic module
+3. Handle heterogeneous graphs             ← hashing works on any node features
+4. Efficient inference                     ← sparse attention reduces compute
+Your module plugs into any GraphFM backbone by replacing the attention layer — that's the "drop-in" claim.
+
+Must read:
+1. Reformer (Kitaev 2020)        — LSH attention in NLP, O(N log N)
+2. BigBird (Zaheer 2020)         — sparse attention = random + local + global
+3. NodeFormer (Wu 2022)          — kernelized attention for graphs, O(N)
+4. SGFormer (Wu 2023)            — simplified graph transformer
+5. GraphGPS (Rampasek 2022)      — general graph transformer framework
+
+For GraphFM connection:
+6. OneForAll (Liu 2023)          — graph foundation model
+7. GraphFM (Xia 2024)            — scalable graph FM
+8. GOFA (Kong 2024)              — generative graph FM

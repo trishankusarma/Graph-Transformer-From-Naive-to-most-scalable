@@ -1,0 +1,45 @@
+Approach 4 — Graphormer Style (Strongest on Small Graphs)
+
+Add degree encoding + spatial encoding directly into attention:
+Instead of just SPD bias:
+e_ij = QK^T/√d  +  SPD_bias[dist(i,j)]
+                +  degree_bias[deg(i)]     ← new
+                +  degree_bias[deg(j)]     ← new
+Graphormer showed this alone pushes small graph performance significantly. Expected: 80-82% on Cora.
+
+Approach 5 — NodeFormer (Scalable Global Attention)
+
+Replace O(N²) attention with kernelized approximation:
+Standard attention:   O(N²)  — 2708² = 7.3M ops
+NodeFormer:           O(N)   — linear in nodes
+
+Uses random feature approximation:
+softmax(QK^T) ≈ φ(Q)φ(K)^T
+where φ is a random feature map
+This is the scalability paper — makes Graph Transformers work on 100k+ node graphs.
+
+Approach 6 — Test on Larger Dataset (ogbn-arxiv)
+
+Keep approach 2 or 3 architecture, switch dataset:
+Cora:       2,708 nodes,   140 train  (5% labeled)
+ogbn-arxiv: 169,343 nodes, 90,941 train (54% labeled)
+This is where GT truly shines — your gate values would flip toward global dominance.
+
+Approach 7 — Virtual Node
+
+Add one global super-node connected to all nodes:
+Regular nodes attend to neighbors (local)
+All nodes also attend to virtual node (global summary)
+Virtual node aggregates graph-level information
+Simple trick, big impact — used in most competitive GNN papers.
+
+For thesis/research paper story:
+  Approach 4 (Graphormer) → push Cora to 80%+
+  then
+  Approach 6 (ogbn-arxiv) → show GT advantage on large graphs
+
+For scalability story:
+  Approach 5 (NodeFormer) → show O(N) attention
+
+For quick win:
+  Approach 7 (Virtual Node) → 10 lines of code, +2-3%

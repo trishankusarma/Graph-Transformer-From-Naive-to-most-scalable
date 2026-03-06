@@ -5,8 +5,10 @@ import torch.nn.functional as F
 import torch
 
 class GraphTransformerAttention(nn.Module):
-    def __init__(self, d_model, dropout, num_heads, max_dist):
+    def __init__(self, config):
         super().__init__()
+
+        d_model, dropout, num_heads, max_dist, max_degree = config.d_model, config.dropout, config.num_heads, config.max_dist, config.max_degree
         # Step 1
         # all parameters goes here
         # Weights corresponding to Q, K, V, O
@@ -24,9 +26,11 @@ class GraphTransformerAttention(nn.Module):
         self.spd_bias = nn.Embedding(max_dist+2, num_heads)
         # max_dist+2 buckets: 0,1,...,max_dist and max_dist+1 (unreachable)
         self.d_k = d_model // num_heads # dimensions per head
-        # Improvement over learning scalar for direct edges
-        self.edge_bias = nn.Parameter(torch.zeros(1)) # tensor([1]) # 1-D vector -> [1,1,1]
-        self.temperature = nn.Parameter(torch.tensor(1.0)) # tensor() # a pure scaler
+
+        # adding degree encoding for approach = 4 :: a look up table for degree encoding
+        self.max_degree = max_degree
+        self.degree_encoding_src = nn.Embedding(max_degree, num_heads)
+        self.degree_encoding_dst = nn.Embedding(max_degree, num_heads)
     
     def forward(self, x, spd_matrix):
         num_nodes, d_model = x.shape[0], x.shape[1]
@@ -41,19 +45,26 @@ class GraphTransformerAttention(nn.Module):
         K = K.view(num_nodes, self.num_heads, self.d_k).transpose(0,1) # (num_heads, num_nodes, d_k)
         V = V.view(num_nodes, self.num_heads, self.d_k).transpose(0,1) # (num_heads, num_nodes, d_k)
 
-        # Step 3 :: Calculate the logit scores
+        # Step 3 :: Calculate the logit scores based on node features
         scores = Q @ K.transpose(-2, -1) # (num_heads, num_nodes, d_k) @ (num_heads, d_k, num_nodes)
         # scores = scores / (self.d_k ** 0.5*T) # (num_heads, num_nodes, num_nodes)
-        scores = scores / (self.d_k ** (0.5 * self.temperature.abs().clamp(min=0.1)))
+        scores = scores / (self.d_k ** 0.5) # (√d_k)
         # (num_heads, num_nodes, num_nodes) :: scores scaled by 1/(d_k^0.5 * 0.1) → 10x sharper
 
-        # Step 4 :: Bias calculation
+        # Step 4 :: Distance Bias calculation
         bias = self.spd_bias(spd_matrix).permute(2, 0, 1) # (num_nodes, num_nodes, num_heads) -> (num_heads, num_nodes, num_nodes)
+        scores = scores + bias
 
-        # build edge mask — 1 if direct neighbors, 0 otherwise
-        adj_mask = (spd_matrix == 1).float()           # [N, N]
-        adj_mask = adj_mask.unsqueeze(0)               # [1, N, N]
-        scores = scores + self.edge_bias * adj_mask + bias  # boost direct neighbors (num_heads, num_nodes, num_nodes)
+        # Add degree encoding + spatial encoding directly into attention
+        # Compute degree from SPD matrix — nodes at distance 1 are neighbors
+        degree = (spd_matrix == 1).sum(dim=-1).clamp(0, self.max_degree - 1)  # (num_nodes) long tensor
+        # degree_bias
+        degree_src_encoding = self.degree_encoding_src(degree) # (num_nodes, num_heads)
+        degree_dst_encoding = self.degree_encoding_dst(degree) # (num_nodes, num_heads)
+
+        degree_bias = degree_src_encoding.T.unsqueeze(2) + degree_dst_encoding.T.unsqueeze(1)
+                    # (num_heads, num_nodes, 1)          (num_heads, 1, num_nodes)
+        scores = scores + degree_bias #(num_heads, num_nodes, num_nodes)
         
         # Step 5 :: Calculating the softmax over all the keys for each query
         attention_weight = F.softmax(scores, dim = -1) # (num_heads, num_nodes, num_nodes)

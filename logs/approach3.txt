@@ -1,0 +1,220 @@
+(base) [aiy257584@scai01 ~/scratch/Workspace/Graph-Transformer-From-Naive-to-most-scalable]
+$ bash run_model.sh train ./data/cora
+Running run_model.sh
+Training
+Step 1: Loading training dataset from Cora :: building up the positional encodings and concat
+Loading data from ./data/cora
+Number of nodes: 2708
+Number of edges: 10556
+Node feature shape: torch.Size([2708, 1433])
+Labels shape: torch.Size([2708])
+Edge_index shape torch.Size([2, 10556])
+Computing the positional encoding of the data
+Adjacency matrix shape: torch.Size([2708, 2708])
+Non zero entries: 10556
+Degree stats → min: 1.0, max: 168.0, mean: 3.90
+Computing the Smallest Distance Matrix
+LapPE shape: torch.Size([2708, 32])
+SPD matrix shape: torch.Size([2708, 2708])
+SPD unique values: tensor([ 0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10])
+Step 2: Initiating the Graph transformer model
+Step 3: Starting the training phase
+Epoch 10/600 :: Loss = 1.7051 :: val acc = 0.3180 :: test acc = 0.3280                                                                                 
+Saved the best model                                                                                                                                   
+Epoch 20/600 :: Loss = 1.3604 :: val acc = 0.5180 :: test acc = 0.5310                                                                                 
+Saved the best model                                                                                                                                   
+Training epochs:   3%|███                                                                                             | 19/600 [00:36<16:57,  1.75s/it]
+Learned gate values:
+Layer 1: alpha=0.873 → LOCAL (GAT) dominant
+Layer 2: alpha=0.488 → GLOBAL (GT) dominant
+Epoch 30/600 :: Loss = 1.0420 :: val acc = 0.6140 :: test acc = 0.6370                                                                                 
+Saved the best model                                                                                                                                   
+Epoch 40/600 :: Loss = 0.7310 :: val acc = 0.6520 :: test acc = 0.6760                                                                                 
+Saved the best model                                                                                                                                   
+Training epochs:   6%|██████▏                                                                                         | 39/600 [01:11<16:19,  1.75s/it]
+Learned gate values:
+Layer 1: alpha=0.860 → LOCAL (GAT) dominant
+Layer 2: alpha=0.497 → GLOBAL (GT) dominant
+Epoch 50/600 :: Loss = 0.4644 :: val acc = 0.7020 :: test acc = 0.7070                                                                                 
+Saved the best model                                                                                                                                   
+Epoch 60/600 :: Loss = 0.2983 :: val acc = 0.7360 :: test acc = 0.7350                                                                                 
+Saved the best model                                                                                                                                   
+Training epochs:  10%|█████████▍                                                                                      | 59/600 [01:47<15:42,  1.74s/it]
+Learned gate values:
+Layer 1: alpha=0.847 → LOCAL (GAT) dominant
+Layer 2: alpha=0.529 → LOCAL (GAT) dominant
+Epoch 70/600 :: Loss = 0.1867 :: val acc = 0.7420 :: test acc = 0.7550                                                                                 
+Saved the best model                                                                                                                                   
+Epoch 80/600 :: Loss = 0.1337 :: val acc = 0.7480 :: test acc = 0.7620                                                                                 
+Saved the best model                                                                                                                                   
+Training epochs:  13%|████████████▋                                                                                   | 79/600 [02:23<15:06,  1.74s/it]
+Learned gate values:
+Layer 1: alpha=0.839 → LOCAL (GAT) dominant
+Layer 2: alpha=0.567 → LOCAL (GAT) dominant
+Epoch 90/600 :: Loss = 0.0909 :: val acc = 0.7440 :: test acc = 0.7630                                                                                 
+Epoch 100/600 :: Loss = 0.0736 :: val acc = 0.7400 :: test acc = 0.7670                                                                                
+Training epochs:  16%|███████████████▊                                                                                | 99/600 [02:59<14:33,  1.74s/it]
+Learned gate values:
+Layer 1: alpha=0.839 → LOCAL (GAT) dominant
+Layer 2: alpha=0.567 → LOCAL (GAT) dominant
+Epoch 110/600 :: Loss = 0.1031 :: val acc = 0.7440 :: test acc = 0.7660                                                                                
+Epoch 120/600 :: Loss = 0.0800 :: val acc = 0.7460 :: test acc = 0.7730                                                                                
+Training epochs:  20%|██████████████████▊                                                                            | 119/600 [03:35<13:58,  1.74s/it]
+Learned gate values:
+Layer 1: alpha=0.839 → LOCAL (GAT) dominant
+Layer 2: alpha=0.567 → LOCAL (GAT) dominant
+Epoch 130/600 :: Loss = 0.0930 :: val acc = 0.7540 :: test acc = 0.7650                                                                                
+Saved the best model                                                                                                                                   
+Epoch 140/600 :: Loss = 0.0734 :: val acc = 0.7540 :: test acc = 0.7690                                                                                
+Training epochs:  23%|██████████████████████                                                                         | 139/600 [04:11<13:22,  1.74s/it]
+Learned gate values:
+Layer 1: alpha=0.840 → LOCAL (GAT) dominant
+Layer 2: alpha=0.580 → LOCAL (GAT) dominant
+Epoch 150/600 :: Loss = 0.0790 :: val acc = 0.7440 :: test acc = 0.7670                                                                                
+Epoch 160/600 :: Loss = 0.0697 :: val acc = 0.7420 :: test acc = 0.7680                                                                                
+Training epochs:  26%|█████████████████████████▏                                                                     | 159/600 [04:47<12:48,  1.74s/it]
+Learned gate values:
+Layer 1: alpha=0.840 → LOCAL (GAT) dominant
+Layer 2: alpha=0.580 → LOCAL (GAT) dominant
+Epoch 170/600 :: Loss = 0.0852 :: val acc = 0.7560 :: test acc = 0.7700                                                                                
+Saved the best model                                                                                                                                   
+Epoch 180/600 :: Loss = 0.0724 :: val acc = 0.7520 :: test acc = 0.7660                                                                                
+Training epochs:  30%|████████████████████████████▎                                                                  | 179/600 [05:23<12:14,  1.74s/it]
+Learned gate values:
+Layer 1: alpha=0.841 → LOCAL (GAT) dominant
+Layer 2: alpha=0.591 → LOCAL (GAT) dominant
+Epoch 190/600 :: Loss = 0.0740 :: val acc = 0.7560 :: test acc = 0.7630                                                                                
+Epoch 200/600 :: Loss = 0.0733 :: val acc = 0.7540 :: test acc = 0.7630                                                                                
+Training epochs:  33%|███████████████████████████████▌                                                               | 199/600 [05:59<11:40,  1.75s/it]
+Learned gate values:
+Layer 1: alpha=0.841 → LOCAL (GAT) dominant
+Layer 2: alpha=0.591 → LOCAL (GAT) dominant
+Epoch 210/600 :: Loss = 0.0750 :: val acc = 0.7560 :: test acc = 0.7730                                                                                
+Epoch 220/600 :: Loss = 0.0618 :: val acc = 0.7540 :: test acc = 0.7700                                                                                
+Training epochs:  36%|██████████████████████████████████▋                                                            | 219/600 [06:35<11:12,  1.76s/it]
+Learned gate values:
+Layer 1: alpha=0.841 → LOCAL (GAT) dominant
+Layer 2: alpha=0.591 → LOCAL (GAT) dominant
+Epoch 230/600 :: Loss = 0.0703 :: val acc = 0.7520 :: test acc = 0.7710                                                                                
+Epoch 240/600 :: Loss = 0.0628 :: val acc = 0.7460 :: test acc = 0.7690                                                                                
+Training epochs:  40%|█████████████████████████████████████▊                                                         | 239/600 [07:11<10:34,  1.76s/it]
+Learned gate values:
+Layer 1: alpha=0.841 → LOCAL (GAT) dominant
+Layer 2: alpha=0.591 → LOCAL (GAT) dominant
+Epoch 250/600 :: Loss = 0.0677 :: val acc = 0.7560 :: test acc = 0.7720                                                                                
+Epoch 260/600 :: Loss = 0.0576 :: val acc = 0.7560 :: test acc = 0.7760                                                                                
+Training epochs:  43%|█████████████████████████████████████████                                                      | 259/600 [07:47<09:55,  1.75s/it]
+Learned gate values:
+Layer 1: alpha=0.841 → LOCAL (GAT) dominant
+Layer 2: alpha=0.591 → LOCAL (GAT) dominant
+Epoch 270/600 :: Loss = 0.0726 :: val acc = 0.7560 :: test acc = 0.7710                                                                                
+Epoch 280/600 :: Loss = 0.0597 :: val acc = 0.7580 :: test acc = 0.7680                                                                                
+Saved the best model                                                                                                                                   
+Training epochs:  46%|████████████████████████████████████████████▏                                                  | 279/600 [08:23<09:22,  1.75s/it]
+Learned gate values:
+Layer 1: alpha=0.843 → LOCAL (GAT) dominant
+Layer 2: alpha=0.605 → LOCAL (GAT) dominant
+Epoch 290/600 :: Loss = 0.0618 :: val acc = 0.7480 :: test acc = 0.7670                                                                                
+Epoch 300/600 :: Loss = 0.0552 :: val acc = 0.7580 :: test acc = 0.7660                                                                                
+Training epochs:  50%|███████████████████████████████████████████████▎                                               | 299/600 [08:59<08:43,  1.74s/it]
+Learned gate values:
+Layer 1: alpha=0.843 → LOCAL (GAT) dominant
+Layer 2: alpha=0.605 → LOCAL (GAT) dominant
+Epoch 310/600 :: Loss = 0.0571 :: val acc = 0.7540 :: test acc = 0.7690                                                                                
+Epoch 320/600 :: Loss = 0.0522 :: val acc = 0.7520 :: test acc = 0.7690                                                                                
+Training epochs:  53%|██████████████████████████████████████████████████▌                                            | 319/600 [09:35<08:09,  1.74s/it]
+Learned gate values:
+Layer 1: alpha=0.843 → LOCAL (GAT) dominant
+Layer 2: alpha=0.605 → LOCAL (GAT) dominant
+Epoch 330/600 :: Loss = 0.0602 :: val acc = 0.7600 :: test acc = 0.7710                                                                                
+Saved the best model                                                                                                                                   
+Epoch 340/600 :: Loss = 0.0534 :: val acc = 0.7580 :: test acc = 0.7690                                                                                
+Training epochs:  56%|█████████████████████████████████████████████████████▋                                         | 339/600 [10:10<07:33,  1.74s/it]
+Learned gate values:
+Layer 1: alpha=0.844 → LOCAL (GAT) dominant
+Layer 2: alpha=0.609 → LOCAL (GAT) dominant
+Epoch 350/600 :: Loss = 0.0605 :: val acc = 0.7580 :: test acc = 0.7700                                                                                
+Epoch 360/600 :: Loss = 0.0522 :: val acc = 0.7620 :: test acc = 0.7750                                                                                
+Saved the best model                                                                                                                                   
+Training epochs:  60%|████████████████████████████████████████████████████████▊                                      | 359/600 [10:46<07:00,  1.74s/it]
+Learned gate values:
+Layer 1: alpha=0.846 → LOCAL (GAT) dominant
+Layer 2: alpha=0.618 → LOCAL (GAT) dominant
+Epoch 370/600 :: Loss = 0.0478 :: val acc = 0.7640 :: test acc = 0.7790                                                                                
+Saved the best model                                                                                                                                   
+Epoch 380/600 :: Loss = 0.0518 :: val acc = 0.7640 :: test acc = 0.7750                                                                                
+Training epochs:  63%|████████████████████████████████████████████████████████████                                   | 379/600 [11:22<06:24,  1.74s/it]
+Learned gate values:
+Layer 1: alpha=0.847 → LOCAL (GAT) dominant
+Layer 2: alpha=0.621 → LOCAL (GAT) dominant
+Epoch 390/600 :: Loss = 0.0582 :: val acc = 0.7600 :: test acc = 0.7740                                                                                
+Epoch 400/600 :: Loss = 0.0489 :: val acc = 0.7600 :: test acc = 0.7730                                                                                
+Training epochs:  66%|███████████████████████████████████████████████████████████████▏                               | 399/600 [11:58<05:50,  1.74s/it]
+Learned gate values:
+Layer 1: alpha=0.847 → LOCAL (GAT) dominant
+Layer 2: alpha=0.621 → LOCAL (GAT) dominant
+Epoch 410/600 :: Loss = 0.0454 :: val acc = 0.7660 :: test acc = 0.7750                                                                                
+Saved the best model                                                                                                                                   
+Epoch 420/600 :: Loss = 0.0473 :: val acc = 0.7640 :: test acc = 0.7750                                                                                
+Training epochs:  70%|██████████████████████████████████████████████████████████████████▎                            | 419/600 [12:34<05:15,  1.74s/it]
+Learned gate values:
+Layer 1: alpha=0.848 → LOCAL (GAT) dominant
+Layer 2: alpha=0.624 → LOCAL (GAT) dominant
+Epoch 430/600 :: Loss = 0.0526 :: val acc = 0.7660 :: test acc = 0.7730                                                                                
+Epoch 440/600 :: Loss = 0.0460 :: val acc = 0.7680 :: test acc = 0.7740                                                                                
+Saved the best model                                                                                                                                   
+Training epochs:  73%|█████████████████████████████████████████████████████████████████████▌                         | 439/600 [13:10<04:44,  1.77s/it]
+Learned gate values:
+Layer 1: alpha=0.849 → LOCAL (GAT) dominant
+Layer 2: alpha=0.628 → LOCAL (GAT) dominant
+Epoch 450/600 :: Loss = 0.0545 :: val acc = 0.7640 :: test acc = 0.7740                                                                                
+Epoch 460/600 :: Loss = 0.0467 :: val acc = 0.7620 :: test acc = 0.7710                                                                                
+Training epochs:  76%|████████████████████████████████████████████████████████████████████████▋                      | 459/600 [13:46<04:06,  1.75s/it]
+Learned gate values:
+Layer 1: alpha=0.849 → LOCAL (GAT) dominant
+Layer 2: alpha=0.628 → LOCAL (GAT) dominant
+Epoch 470/600 :: Loss = 0.0464 :: val acc = 0.7640 :: test acc = 0.7730                                                                                
+Epoch 480/600 :: Loss = 0.0488 :: val acc = 0.7640 :: test acc = 0.7730                                                                                
+Training epochs:  80%|███████████████████████████████████████████████████████████████████████████▊                   | 479/600 [14:22<03:31,  1.75s/it]
+Learned gate values:
+Layer 1: alpha=0.849 → LOCAL (GAT) dominant
+Layer 2: alpha=0.628 → LOCAL (GAT) dominant
+Epoch 490/600 :: Loss = 0.0469 :: val acc = 0.7660 :: test acc = 0.7750                                                                                
+Epoch 500/600 :: Loss = 0.0462 :: val acc = 0.7700 :: test acc = 0.7760                                                                                
+Saved the best model                                                                                                                                   
+Training epochs:  83%|███████████████████████████████████████████████████████████████████████████████                | 499/600 [14:58<02:57,  1.75s/it]
+Learned gate values:
+Layer 1: alpha=0.850 → LOCAL (GAT) dominant
+Layer 2: alpha=0.629 → LOCAL (GAT) dominant
+Epoch 510/600 :: Loss = 0.0452 :: val acc = 0.7660 :: test acc = 0.7760                                                                                
+Epoch 520/600 :: Loss = 0.0452 :: val acc = 0.7660 :: test acc = 0.7760                                                                                
+Training epochs:  86%|██████████████████████████████████████████████████████████████████████████████████▏            | 519/600 [15:34<02:21,  1.75s/it]
+Learned gate values:
+Layer 1: alpha=0.850 → LOCAL (GAT) dominant
+Layer 2: alpha=0.629 → LOCAL (GAT) dominant
+Epoch 530/600 :: Loss = 0.0423 :: val acc = 0.7680 :: test acc = 0.7750                                                                                
+Epoch 540/600 :: Loss = 0.0433 :: val acc = 0.7680 :: test acc = 0.7740                                                                                
+Training epochs:  90%|█████████████████████████████████████████████████████████████████████████████████████▎         | 539/600 [16:10<01:46,  1.75s/it]
+Learned gate values:
+Layer 1: alpha=0.850 → LOCAL (GAT) dominant
+Layer 2: alpha=0.629 → LOCAL (GAT) dominant
+Epoch 550/600 :: Loss = 0.0472 :: val acc = 0.7700 :: test acc = 0.7760                                                                                
+Epoch 560/600 :: Loss = 0.0484 :: val acc = 0.7700 :: test acc = 0.7760                                                                                
+Training epochs:  93%|████████████████████████████████████████████████████████████████████████████████████████▌      | 559/600 [16:46<01:11,  1.74s/it]
+Learned gate values:
+Layer 1: alpha=0.850 → LOCAL (GAT) dominant
+Layer 2: alpha=0.629 → LOCAL (GAT) dominant
+Epoch 570/600 :: Loss = 0.0474 :: val acc = 0.7700 :: test acc = 0.7760                                                                                
+Epoch 580/600 :: Loss = 0.0454 :: val acc = 0.7700 :: test acc = 0.7760                                                                                
+Training epochs:  96%|███████████████████████████████████████████████████████████████████████████████████████████▋   | 579/600 [17:22<00:36,  1.75s/it]
+Learned gate values:
+Layer 1: alpha=0.850 → LOCAL (GAT) dominant
+Layer 2: alpha=0.629 → LOCAL (GAT) dominant
+Epoch 590/600 :: Loss = 0.0422 :: val acc = 0.7700 :: test acc = 0.7760                                                                                
+Epoch 600/600 :: Loss = 0.0447 :: val acc = 0.7680 :: test acc = 0.7750                                                                                
+Training epochs: 100%|██████████████████████████████████████████████████████████████████████████████████████████████▊| 599/600 [17:58<00:01,  1.74s/it]
+Learned gate values:
+Layer 1: alpha=0.850 → LOCAL (GAT) dominant
+Layer 2: alpha=0.629 → LOCAL (GAT) dominant
+Training epochs: 100%|███████████████████████████████████████████████████████████████████████████████████████████████| 600/600 [17:58<00:00,  1.80s/it]
+Plots saved in directory: ./plots/approach3

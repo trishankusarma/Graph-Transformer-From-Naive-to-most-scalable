@@ -22,9 +22,7 @@ class GCN_GT_Hybrid_Transformer(nn.Module):
                 config.d_model, config.dropout
             ) for _ in range(config.num_gcn_layers)])
         # Step 4
-        self.transformer_layers = nn.ModuleList([GraphTransformerLayer(
-             config.d_model, config.dropout, config.num_heads, config.max_dist, config.d_ff
-        ) for _ in range(config.num_layers)])
+        self.transformer_layers = nn.ModuleList([GraphTransformerLayer(config) for _ in range(config.num_layers)])
         # Step 5
         self.final_norm = nn.LayerNorm(config.d_model)
         self.dropout = nn.Dropout(config.dropout)
