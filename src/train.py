@@ -172,14 +172,6 @@ if __name__ == "__main__":
             if patience_counter >= config.patience:
                 tqdm.write(f"Early stopping at epoch {epoch+1}")
                 break
-
-            if config.approach > 2 and (epoch+1) % (2*config.skip_accuracy_freq) == 0:
-                model.load_state_dict(torch.load(f'{PLOT_DIR}/best_model.pt'))
-                print("\nLearned gate values:")
-                for i, layer in enumerate(model.layers):
-                    alpha = torch.sigmoid(layer.gate).item()
-                    dominant = 'LOCAL (GAT)' if alpha > 0.5 else 'GLOBAL (GT)'
-                    print(f"Layer {i+1}: alpha={alpha:.3f} → {dominant} dominant")
    
     plot_curves(
         training_loss = training_loss, 
